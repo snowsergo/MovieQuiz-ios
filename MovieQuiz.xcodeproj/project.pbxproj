@@ -17,7 +17,7 @@
 		AD77F5742857F8810062FB14 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD77F5732857F8810062FB14 /* Date+Extensions.swift */; };
 		AD7AFA552836189F00399704 /* Array+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7AFA542836189F00399704 /* Array+Extensions.swift */; };
 		F06EF46B28970477002EBDBD /* YS Display-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F06EF46928970477002EBDBD /* YS Display-Bold.ttf */; };
-		F06EF46C28970477002EBDBD /* YS Display-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F06EF46A28970477002EBDBD /* YS Display-Medium.ttf */; };
+		F07532A42899AD500077EC48 /* YS Display-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F06EF46A28970477002EBDBD /* YS Display-Medium.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -190,7 +190,7 @@
 				AD1ABABB2831907F00B3E448 /* Assets.xcassets in Resources */,
 				AD1ABAB92831907B00B3E448 /* Main.storyboard in Resources */,
 				F06EF46B28970477002EBDBD /* YS Display-Bold.ttf in Resources */,
-				F06EF46C28970477002EBDBD /* YS Display-Medium.ttf in Resources */,
+				F07532A42899AD500077EC48 /* YS Display-Medium.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
