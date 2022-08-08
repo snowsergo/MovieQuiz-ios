@@ -108,7 +108,6 @@ final class MovieQuizViewController: UIViewController {
         return result + "\n" + quize + "\n" + record + "\n" + statistic
     }
     private func showNextQuestionOrResults() {
-        movieImageView.layer.masksToBounds = true
         movieImageView.layer.borderWidth = 0
         movieImageView.layer.borderColor = UIColor.white.withAlphaComponent(0.0).cgColor
         if currentQuestionIndex == questions.count - 1 {
