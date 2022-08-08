@@ -1,10 +1,5 @@
 import UIKit
 
-extension UIColor {
-    static var ypRed: UIColor { UIColor(named: "YP Red")! }
-    static var ypGreen: UIColor { UIColor(named: "YP Green")! }
-}
-
 final class MovieQuizViewController: UIViewController {
     // MARK: - Lifecycle
     struct ViewModel {
@@ -32,16 +27,11 @@ final class MovieQuizViewController: UIViewController {
         let correctAnswer: Bool
     }
     private var currentQuestionIndex: Int = 0
-    private var rigthAnswerCount: Int = 0
+    private var rightAnswerCount: Int = 0
     private var quizeCount: Int = 0
     private var totalRightAnswerCount: Int = 0
     private var answersRecord: Int = 0
     private var recordDate: Date = Date()
-    
-//    let dateFormatterGet = NSDateFormatter()
-//    dateFormatterGet.dateFormat = "yyyy-MM-dd HH:mm:ss"“
-//    dateformater.dateformat = "dd.MM.yy"
-    
     private let questions: [QuizeQuestion] = [
     QuizeQuestion(image: "Deadpool_000", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: true),
     QuizeQuestion(image: "The Godfather", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: true),
@@ -78,20 +68,19 @@ final class MovieQuizViewController: UIViewController {
             message: result.text,
             preferredStyle: .alert
         )
-
         let action = UIAlertAction(
             title: result.buttonText,
-            style: .default, handler: { _ in
+            style: .default, handler: {_ in
             self.currentQuestionIndex = 0
-            self.rigthAnswerCount = 0
-            self.showStep(quize: self.convertQuestionToQuestionStepModel(model: self.questions[0]))
+            self.rightAnswerCount = 0
+            self.showStep(quize: self.createStepModel(model: self.questions[0]))
         })
         alert.addAction(action)
 
-        self.present(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
     }
     
-    private func convertQuestionToQuestionStepModel(model: QuizeQuestion) -> QuizeStepViewModel {
+    private func createStepModel(model: QuizeQuestion) -> QuizeStepViewModel {
         return QuizeStepViewModel(
             image: UIImage(named: model.image) ?? UIImage(),
             question: model.text,
@@ -105,13 +94,13 @@ final class MovieQuizViewController: UIViewController {
         movieImageView.layer.borderWidth = 8
         movieImageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
         if isCorrect {
-            rigthAnswerCount += 1
+            rightAnswerCount += 1
         }
     }
     private func getResultMessage() -> String {
         let formater = DateFormatter()
         formater.dateFormat = "dd.MM.yyyy hh:mm"
-        let result: String = "Ваш результат: \(rigthAnswerCount)/\(questions.count)."
+        let result: String = "Ваш результат: \(rightAnswerCount)/\(questions.count)."
         let quize: String = "Количество сыгранных квизов: \(quizeCount)."
         let record: String = "Рекорд: \(answersRecord)/\(questions.count) (\(formater.string(from: recordDate)))."
         let percent = (Double(totalRightAnswerCount) / Double(quizeCount * questions.count) * 10000).rounded() / 100
@@ -123,11 +112,11 @@ final class MovieQuizViewController: UIViewController {
         movieImageView.layer.borderWidth = 0
         movieImageView.layer.borderColor = UIColor.white.withAlphaComponent(0.0).cgColor
         if currentQuestionIndex == questions.count - 1 {
-            if quizeCount == 0 || rigthAnswerCount > answersRecord {
-                answersRecord = rigthAnswerCount
+            if quizeCount == 0 || rightAnswerCount > answersRecord {
+                answersRecord = rightAnswerCount
                 recordDate = Date()
             }
-            totalRightAnswerCount += self.rigthAnswerCount
+            totalRightAnswerCount += self.rightAnswerCount
             quizeCount += 1
             showResult(quize: QuizeResultsViewModel(
                 title: "Этот раунд окончен",
@@ -137,7 +126,7 @@ final class MovieQuizViewController: UIViewController {
             )
         } else {
             currentQuestionIndex += 1
-            showStep(quize: convertQuestionToQuestionStepModel(model: questions[currentQuestionIndex]))
+            showStep(quize: createStepModel(model: questions[currentQuestionIndex]))
         }
     }
     
@@ -161,6 +150,6 @@ final class MovieQuizViewController: UIViewController {
         noButton.layer.cornerRadius = 15
         movieImageView.layer.masksToBounds = true
         movieImageView.layer.cornerRadius = 20
-        showStep(quize: convertQuestionToQuestionStepModel(model: questions[currentQuestionIndex]))
+        showStep(quize: createStepModel(model: questions[currentQuestionIndex]))
     }
 }
