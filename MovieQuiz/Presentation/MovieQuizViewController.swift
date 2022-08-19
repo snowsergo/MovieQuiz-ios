@@ -45,10 +45,26 @@ final class MovieQuizViewController: UIViewController {
             style: .default, handler: {_ in
             self.currentQuestionIndex = 0
             self.rightAnswerCount = 0
-                if let firstQuestion = self.questionFactory.requestNextQuestion() {
-                    self.currentQuestion = firstQuestion
-                    let viewModel = self.createStepModel(model: firstQuestion)
-                    self.showStep(quize: viewModel)
+//                if let firstQuestion = self.questionFactory.requestNextQuestion() {
+//                    self.currentQuestion = firstQuestion
+//                    let viewModel = self.createStepModel(model: firstQuestion)
+//                    self.showStep(quize: viewModel)
+//                }
+                
+                self.questionFactory.requestNextQuestion { [weak self] question in
+                    guard
+                        let self = self,
+                        let question = question
+                    else {
+                        // Ошибка
+                        return
+                    }
+                    
+                    self.currentQuestion = question
+                    let viewModel = self.createStepModel(model: question)
+                    DispatchQueue.main.async {
+                        self.showStep(quize: viewModel)
+                    }
                 }
 //            self.showStep(quize: self.createStepModel(model: self.questions[0]))
         })
@@ -102,11 +118,27 @@ final class MovieQuizViewController: UIViewController {
             )
         } else {
             currentQuestionIndex += 1
-            if let nextQuestion = questionFactory.requestNextQuestion() {
-                currentQuestion = nextQuestion
-                let viewModel = createStepModel(model: nextQuestion)
+//            if let nextQuestion = questionFactory.requestNextQuestion() {
+//                currentQuestion = nextQuestion
+//                let viewModel = createStepModel(model: nextQuestion)
+//
+//                showStep(quize: viewModel)
+//            }
+            
+            questionFactory.requestNextQuestion { [weak self] question in
+                guard
+                    let self = self,
+                    let question = question
+                else {
+                    // Ошибка
+                    return
+                }
                 
-                showStep(quize: viewModel)
+                self.currentQuestion = question
+                let viewModel = self.createStepModel(model: question)
+                DispatchQueue.main.async {
+                    self.showStep(quize: viewModel)
+                }
             }
 //            currentQuestionIndex += 1
 //            showStep(quize: createStepModel(model: questions[currentQuestionIndex]))
@@ -143,11 +175,28 @@ final class MovieQuizViewController: UIViewController {
         noButton.layer.cornerRadius = 15
         movieImageView.layer.masksToBounds = true
         movieImageView.layer.cornerRadius = 20
-        if let firstQuestion = questionFactory.requestNextQuestion() {
-            currentQuestion = firstQuestion
-            let viewModel = createStepModel(model: firstQuestion)
-            showStep(quize: viewModel)
+//        if let firstQuestion = questionFactory.requestNextQuestion() {
+//            currentQuestion = firstQuestion
+//            let viewModel = createStepModel(model: firstQuestion)
+//            showStep(quize: viewModel)
+//        }
+        
+        questionFactory.requestNextQuestion { [weak self] question in
+            guard
+                let self = self,
+                let question = question
+            else {
+                // Ошибка
+                return
+            }
+            
+            self.currentQuestion = question
+            let viewModel = self.createStepModel(model: question)
+            DispatchQueue.main.async {
+                self.showStep(quize: viewModel)
+            }
         }
+        
         //showStep(quize: createStepModel(model: questions[currentQuestionIndex]))
     }
 }
