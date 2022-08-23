@@ -52,7 +52,7 @@ final class StatisticServiceImplementation: StatisticService {
             self.bestGame = GameRecord(correct: count, total: amount, date: Date())
         }
         gamesCount += 1
-        totalAccuracy = (totalAccuracy + Double(count)/Double(amount)) / Double(gamesCount)
+        totalAccuracy = (totalAccuracy + Double(count)/Double(amount) * 100) / Double(gamesCount)
     }
     
 }

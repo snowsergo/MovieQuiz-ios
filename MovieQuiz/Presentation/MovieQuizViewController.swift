@@ -49,7 +49,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate,R
     }
     
     private var questionFactory: QuestionFactoryProtocol?
-    private var statisticService: StatisticService?
+    private var statisticService: StatisticService = StatisticServiceImplementation()
     private var resultAlertPresenter: ResultAlertPresenterProtocol?
     private var currentQuestionIndex: Int = 0
     private var rightAnswerCount: Int = 0
@@ -65,15 +65,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate,R
     @IBOutlet private weak var noButton: UIButton!
     @IBOutlet private weak var yesButton: UIButton!
     
-//    super.init()
-//
-//    init() {
-//        self.statisticService = StatisticServiceImplementation()
-//      }
-//
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
     private func showStep(quize step: QuizStepViewModel) {
         noButton.isUserInteractionEnabled = true
         yesButton.isUserInteractionEnabled = true
@@ -102,9 +93,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate,R
         let formater = DateFormatter()
         formater.dateFormat = "dd.MM.yyyy hh:mm"
         let result: String = "Ваш результат: \(rightAnswerCount)/\(questionsAmount)."
-        let quize: String = "Количество сыгранных квизов: \(statisticService?.gamesCount)."
-        let record: String = "Рекорд: \(statisticService?.bestGame.correct)/\(statisticService?.bestGame.total) (\(formater.string(from: statisticService?.bestGame.date ?? Date())))."
-        let statistic: String = "Средняя точность: \(statisticService?.totalAccuracy)%."
+        let quize: String = "Количество сыгранных квизов: \(statisticService.gamesCount)."
+//        let record: String = "Рекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(formater.string(from: statisticService.bestGame.date ?? Date())))."
+        let record: String = "Рекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(statisticService.bestGame.date.dateTimeString))"
+        let statistic: String = "Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%"
         return result + "\n" + quize + "\n" + record + "\n" + statistic
     }
     
@@ -117,7 +109,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate,R
         movieImageView.layer.borderWidth = 0
         movieImageView.layer.borderColor = UIColor.white.withAlphaComponent(0.0).cgColor
         if currentQuestionIndex == questionsAmount - 1 {
-            statisticService?.store(correct: rightAnswerCount, total: questionsAmount)
+            statisticService.store(correct: rightAnswerCount, total: questionsAmount)
 //            if quizeCount == 0 || rightAnswerCount > answersRecord {
 //                answersRecord = rightAnswerCount
 //                recordDate = Date()
@@ -160,7 +152,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate,R
     override func viewDidLoad() {
         super.viewDidLoad()
 //        let statisticService: StatisticService = StatisticServiceImplementation()
-        statisticService = StatisticServiceImplementation()
+//        statisticService = StatisticServiceImplementation()
 //        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         var documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
 //        print("====")
