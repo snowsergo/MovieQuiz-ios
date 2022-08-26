@@ -1,35 +1,34 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate,ResultAlertPresenterDelegate {
-  
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, ResultAlertPresenterDelegate {
     // MARK: - Lifecycle
     struct ViewModel {
         let image: UIImage
         let question: String
         let questionNumber: String
     }
-    
+
     enum CodingKeys: CodingKey {
-       case id, title, year, image, releaseDate, runtimeMins, directors, actorList
-     }
+        case id, title, year, image, releaseDate, runtimeMins, directors, actorList
+    }
     struct Actor: Codable {
         let id: String
         let image: String
         let name: String
         let asCharacter: String
     }
-    
+
     struct Movie: Codable {
         let id: String
         let title: String
         let year: Int
         let image: String
-       // let releaseDate: String
-      //  let runtimeMins: Int
-      //  let directors: String
-      //  let actorList: [Actor]
-        
-        init(from decoder: Decoder) throws {
+        // let releaseDate: String
+        //  let runtimeMins: Int
+        //  let directors: String
+        //  let actorList: [Actor]
+
+    init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             id = try container.decode(String.self, forKey: .id)
             title = try container.decode(String.self, forKey: .title)
@@ -64,6 +63,31 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate,R
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet private weak var noButton: UIButton!
     @IBOutlet private weak var yesButton: UIButton!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    private func showNetworkError(message: String) {
+        activityIndicator.isHidden = true // скрываем индикатор загрузки
+
+        // создайте алерт
+        let alert = UIAlertController(
+            title: "Что-то пошло не так",
+            message: "Невозможно загрузить данные",
+            preferredStyle: .alert
+        )
+        let action = UIAlertAction(
+            title: "Попробовать еще раз",
+            style: .default, handler: {_ in
+//            callback()
+                print("press on error")
+            })
+        alert.addAction(action)
+
+        self.present(alert, animated: true, completion: nil)
+    } 
     
     private func showStep(quize step: QuizStepViewModel) {
         noButton.isUserInteractionEnabled = true
@@ -75,7 +99,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate,R
     
     private func createStepModel(model: QuizQuestion) -> QuizStepViewModel {
         return QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+//            image: UIImage(named: model.image) ?? UIImage(),
+            image: UIImage(data: model.image) ?? UIImage.checkmark,
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
     }
@@ -117,18 +142,18 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate,R
             totalRightAnswerCount += self.rightAnswerCount
             quizeCount += 1
             resultAlertPresenter = ResultAlertPresenter(
-                title:"Этот раунд окончен", text:getResultMessage(),
-                buttonText:"Сыграть еще раз",
+                title: "Этот раунд окончен",
+                text: getResultMessage(),
+                buttonText: "Сыграть еще раз",
                 controller: self
             )
             resultAlertPresenter?.showResult(callback: startNewQuiz)
         } else {
             currentQuestionIndex += 1
             questionFactory?.requestNextQuestion()
-            
         }
     }
-    
+
     @IBAction private func noButtonClicked(_ sender: Any) {
         guard let currentQuestion = currentQuestion else {
             return
@@ -138,7 +163,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate,R
             self.showNextQuestionOrResults()
         }
     }
-    
+
     @IBAction private func yesButtonClicked(_ sender: Any) {
         guard let currentQuestion = currentQuestion else {
             return
@@ -148,39 +173,42 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate,R
             self.showNextQuestionOrResults()
         }
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
 //        let statisticService: StatisticService = StatisticServiceImplementation()
 //        statisticService = StatisticServiceImplementation()
 //        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        var documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+//        var documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
 //        print("====")
 //        print(documentsURL)
 //        print("====")
-        let fileName = "top.json"
-        documentsURL.appendPathComponent(fileName)
-        var fileExist = FileManager.default.fileExists(atPath: documentsURL.path)
-        print("fileExist = ", fileExist)
-        let jsonString = try? String(contentsOf: documentsURL)
-//        print("jsonString = ", jsonString)
-//        var data = jsonString.data(using: .utf8)!
-        let data = jsonString?.data(using: .utf8) as! Data
-        print("data = ",data)
-        do {
-            let top = try JSONDecoder().decode(Top.self, from: data)
-            print("top", top)
-        } catch {
-            print("Failed to parse: \(error.localizedDescription)")
-        }
+//        let fileName = "top.json"
+//        documentsURL.appendPathComponent(fileName)
+//        var fileExist = FileManager.default.fileExists(atPath: documentsURL.path)
+//        print("fileExist = ", fileExist)
+//        let jsonString = try? String(contentsOf: documentsURL)
+////        print("jsonString = ", jsonString)
+////        var data = jsonString.data(using: .utf8)!
+//        let data = jsonString?.data(using: .utf8) as! Data
+//        print("data = ",data)
+//        do {
+//            let top = try JSONDecoder().decode(Top.self, from: data)
+//            print("top", top)
+//        } catch {
+//            print("Failed to parse: \(error.localizedDescription)")
+//        }
         yesButton.layer.cornerRadius = 15
         noButton.layer.cornerRadius = 15
         movieImageView.layer.masksToBounds = true
         movieImageView.layer.cornerRadius = 20
-        questionFactory = QuestionFactory(delegate: self)
+        let moviesLoader = MoviesLoader()
+        questionFactory = QuestionFactory(moviesLoader: moviesLoader, delegate: self)
+        questionFactory?.loadData()
+        showLoadingIndicator()
         questionFactory?.requestNextQuestion()
     }
-    
+
     // MARK: - QuestionFactoryDelegate
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question = question else {
@@ -192,4 +220,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate,R
             self?.showStep(quize: viewModel)
         }
     }
+
+    func didLoadDataFromServer() {
+        activityIndicator.isHidden = true // скрываем индикатор загрузки
+        questionFactory?.requestNextQuestion()
+    }
+
+    func didFailToLoadData(with error: Error) {
+        showNetworkError(message: error.localizedDescription)
+    } 
 }
