@@ -1,10 +1,3 @@
-//
-//  ResultAlertPresenterProtocol.swift
-//  MovieQuiz
-//
-//  Created by Сергей on 19.08.2022.
-//
-
 import Foundation
 protocol ResultAlertPresenterProtocol {
     var title: String { get }

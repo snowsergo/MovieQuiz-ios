@@ -1,4 +1,3 @@
-
 import Foundation
 
 protocol MoviesLoading {
@@ -11,7 +10,6 @@ struct MoviesLoader: MoviesLoading {
 
     // MARK: - URL
     private var mostPopularMoviesUrl: URL {
-         // Если мы не смогли преобразовать строку в URL, то приложение упадёт с ошибкой
          guard let url = URL(string: "https://imdb-api.com/en/API/MostPopularMovies/k_kiwxbi4y") else {
              preconditionFailure("Unable to construct mostPopularMoviesUrl")
          }
@@ -26,7 +24,6 @@ struct MoviesLoader: MoviesLoading {
                 handler(.success(movies))
             } else {
                 return
-            }
-        }}
+            }}}
     }
     }

@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, ResultAlertPresenterDelegate {
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // MARK: - Lifecycle
     struct ViewModel {
         let image: UIImage
@@ -8,45 +8,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         let questionNumber: String
     }
 
-    enum CodingKeys: CodingKey {
-        case id, title, year, image, releaseDate, runtimeMins, directors, actorList
-    }
-    struct Actor: Codable {
-        let id: String
-        let image: String
-        let name: String
-        let asCharacter: String
-    }
-
-    struct Movie: Codable {
-        let id: String
-        let title: String
-        let year: Int
-        let image: String
-        // let releaseDate: String
-        //  let runtimeMins: Int
-        //  let directors: String
-        //  let actorList: [Actor]
-
-    init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            id = try container.decode(String.self, forKey: .id)
-            title = try container.decode(String.self, forKey: .title)
-            let year = try container.decode(String.self, forKey: .year)
-            self.year = Int(year)!
-            image = try container.decode(String.self, forKey: .image)
-         //   releaseDate = try container.decode(String.self, forKey: .releaseDate)
-        //    let runtimeMins = try container.decode(String.self, forKey: .runtimeMins)
-        //    self.runtimeMins = Int(runtimeMins)!
-        //    directors = try container.decode(String.self, forKey: .directors)
-         //   actorList = try container.decode([Actor].self, forKey: .actorList)
-        }
-    }
-    
-    struct Top: Decodable {
-        let items: [Movie]
-    }
-    
     private var questionFactory: QuestionFactoryProtocol?
     private var statisticService: StatisticService = StatisticServiceImplementation()
     private var resultAlertPresenter: ResultAlertPresenterProtocol?
@@ -70,9 +31,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         activityIndicator.startAnimating()
     }
     private func showNetworkError(message: String) {
-        activityIndicator.isHidden = true // скрываем индикатор загрузки
+        activityIndicator.isHidden = true
 
-        // создайте алерт
         let alert = UIAlertController(
             title: "Что-то пошло не так",
             message: "Невозможно загрузить данные",
@@ -81,14 +41,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         let action = UIAlertAction(
             title: "Попробовать еще раз",
             style: .default, handler: {_ in
-//            callback()
-                print("press on error")
+                self.questionFactory?.loadData()
             })
         alert.addAction(action)
 
         self.present(alert, animated: true, completion: nil)
-    } 
-    
+    }
+
     private func showStep(quize step: QuizStepViewModel) {
         noButton.isUserInteractionEnabled = true
         yesButton.isUserInteractionEnabled = true
@@ -96,7 +55,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         questionLabel.text = step.question
         counterLabel.text = step.questionNumber
     }
-    
+
     private func createStepModel(model: QuizQuestion) -> QuizStepViewModel {
         return QuizStepViewModel(
 //            image: UIImage(named: model.image) ?? UIImage(),
@@ -104,7 +63,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
     }
-    
+
     private func showAnswerResult(isCorrect: Bool) {
         noButton.isUserInteractionEnabled = false
         yesButton.isUserInteractionEnabled = false
@@ -119,12 +78,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         formater.dateFormat = "dd.MM.yyyy hh:mm"
         let result: String = "Ваш результат: \(rightAnswerCount)/\(questionsAmount)."
         let quize: String = "Количество сыгранных квизов: \(statisticService.gamesCount)."
-//        let record: String = "Рекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(formater.string(from: statisticService.bestGame.date ?? Date())))."
         let record: String = "Рекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(statisticService.bestGame.date.dateTimeString))"
         let statistic: String = "Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%"
         return result + "\n" + quize + "\n" + record + "\n" + statistic
     }
-    
+
     private func startNewQuiz() -> Void  {
         self.currentQuestionIndex = 0
         self.rightAnswerCount = 0
@@ -135,10 +93,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         movieImageView.layer.borderColor = UIColor.white.withAlphaComponent(0.0).cgColor
         if currentQuestionIndex == questionsAmount - 1 {
             statisticService.store(correct: rightAnswerCount, total: questionsAmount)
-//            if quizeCount == 0 || rightAnswerCount > answersRecord {
-//                answersRecord = rightAnswerCount
-//                recordDate = Date()
-//            }
             totalRightAnswerCount += self.rightAnswerCount
             quizeCount += 1
             resultAlertPresenter = ResultAlertPresenter(
@@ -176,28 +130,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
 
     override func viewDidLoad() {
         super.viewDidLoad()
-//        let statisticService: StatisticService = StatisticServiceImplementation()
-//        statisticService = StatisticServiceImplementation()
-//        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-//        var documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-//        print("====")
-//        print(documentsURL)
-//        print("====")
-//        let fileName = "top.json"
-//        documentsURL.appendPathComponent(fileName)
-//        var fileExist = FileManager.default.fileExists(atPath: documentsURL.path)
-//        print("fileExist = ", fileExist)
-//        let jsonString = try? String(contentsOf: documentsURL)
-////        print("jsonString = ", jsonString)
-////        var data = jsonString.data(using: .utf8)!
-//        let data = jsonString?.data(using: .utf8) as! Data
-//        print("data = ",data)
-//        do {
-//            let top = try JSONDecoder().decode(Top.self, from: data)
-//            print("top", top)
-//        } catch {
-//            print("Failed to parse: \(error.localizedDescription)")
-//        }
         yesButton.layer.cornerRadius = 15
         noButton.layer.cornerRadius = 15
         movieImageView.layer.masksToBounds = true
@@ -222,11 +154,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     }
 
     func didLoadDataFromServer() {
-        activityIndicator.isHidden = true // скрываем индикатор загрузки
+        activityIndicator.isHidden = true
         questionFactory?.requestNextQuestion()
     }
 
     func didFailToLoadData(with error: Error) {
         showNetworkError(message: error.localizedDescription)
-    } 
+    }
 }

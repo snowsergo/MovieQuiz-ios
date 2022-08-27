@@ -1,4 +1,3 @@
-
 import Foundation
 
 /// Отвечает за загрузку данных по URL

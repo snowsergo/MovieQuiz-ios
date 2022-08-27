@@ -1,16 +1,9 @@
-//
-//  StatisticService.swift
-//  MovieQuiz
-//
-//  Created by Сергей on 22.08.2022.
-//
-
 import Foundation
 
 struct GameRecord: Codable {
-    let correct: Int // кол-во правильных ответов
-    let total: Int // кол-во вопросов квиза
-    let date: Date // дата завершения раунда
+    let correct: Int
+    let total: Int
+    let date: Date
     func isNewRecord(current:Int) -> Bool {
         return current > self.correct
     }
@@ -29,7 +22,7 @@ final class StatisticServiceImplementation: StatisticService {
     }
     var totalAccuracy: Double = 0.0
     var gamesCount: Int = 0
-    
+
     private (set) var bestGame: GameRecord {
         get {
             guard let data = userDefaults.data(forKey: Keys.bestGame.rawValue),
@@ -46,13 +39,12 @@ final class StatisticServiceImplementation: StatisticService {
             userDefaults.set(data, forKey: Keys.bestGame.rawValue)
         }
     }
-    
+
     func store(correct count: Int, total amount: Int) {
-        if self.bestGame.isNewRecord(current: count){
+        if self.bestGame.isNewRecord(current: count) {
             self.bestGame = GameRecord(correct: count, total: amount, date: Date())
         }
         gamesCount += 1
-        totalAccuracy = (totalAccuracy + Double(count)/Double(amount) * 100) / Double(gamesCount)
+        totalAccuracy = (totalAccuracy + Double(count) / Double(amount) * 100) / Double(gamesCount)
     }
-    
 }
