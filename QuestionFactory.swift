@@ -11,6 +11,10 @@ class QuestionFactory: QuestionFactoryProtocol {
     private var movies: [MostPopularMovie] = []
 
     func requestNextQuestion() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.delegate.didRequestNextQuestion()
+        }
         DispatchQueue.global().async { [weak self] in
             guard let self = self else { return }
             let index = (0..<self.movies.count).randomElement() ?? 0
@@ -18,17 +22,20 @@ class QuestionFactory: QuestionFactoryProtocol {
             guard let movie = self.movies[safe: index] else { return }
 
             var imageData = Data()
-
             do {
                 imageData = try Data(contentsOf: movie.imageURL)
             } catch {
                 print("Failed to load image")
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    self.delegate.didReceiveNextQuestion(question: nil)
+                }
             }
 
             let rating = Float(movie.rating) ?? 0
-
-            let text = "Рейтинг этого фильма больше чем 7?"
-            let correctAnswer = rating > 7
+            let random = Int.random(in: 5..<8)
+            let text = "Рейтинг этого фильма больше чем \(random)?"
+            let correctAnswer = rating > Float(random)
 
             let question = QuizQuestion(
                 image: imageData,

@@ -13,39 +13,21 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var resultAlertPresenter: ResultAlertPresenterProtocol?
     private var currentQuestionIndex: Int = 0
     private var rightAnswerCount: Int = 0
-    private var quizeCount: Int = 0
-    private var totalRightAnswerCount: Int = 0
-    private var answersRecord: Int = 0
-    private var recordDate: Date = Date()
     private let questionsAmount: Int = 10
     private var currentQuestion: QuizQuestion?
-    @IBOutlet weak var movieImageView: UIImageView!
-    @IBOutlet weak var questionLabel: UILabel!
+    @IBOutlet private weak var movieImageView: UIImageView!
+    @IBOutlet private weak var questionLabel: UILabel!
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet private weak var noButton: UIButton!
     @IBOutlet private weak var yesButton: UIButton!
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
 
     private func showLoadingIndicator() {
-        activityIndicator.isHidden = false
         activityIndicator.startAnimating()
     }
-    private func showNetworkError(message: String) {
-        activityIndicator.isHidden = true
 
-        let alert = UIAlertController(
-            title: "Что-то пошло не так",
-            message: "Невозможно загрузить данные",
-            preferredStyle: .alert
-        )
-        let action = UIAlertAction(
-            title: "Попробовать еще раз",
-            style: .default, handler: {_ in
-                self.questionFactory?.loadData()
-            })
-        alert.addAction(action)
-
-        self.present(alert, animated: true, completion: nil)
+    private func hideLoadingIndicator() {
+        activityIndicator.stopAnimating()
     }
 
     private func showStep(quize step: QuizStepViewModel) {
@@ -58,7 +40,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 
     private func createStepModel(model: QuizQuestion) -> QuizStepViewModel {
         return QuizStepViewModel(
-//            image: UIImage(named: model.image) ?? UIImage(),
             image: UIImage(data: model.image) ?? UIImage.checkmark,
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
@@ -83,9 +64,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         return result + "\n" + quize + "\n" + record + "\n" + statistic
     }
 
-    private func startNewQuiz() -> Void  {
+    private func startNewQuiz() {
         self.currentQuestionIndex = 0
         self.rightAnswerCount = 0
+        self.questionFactory?.requestNextQuestion()
+    }
+    private func loadData() {
+        self.questionFactory?.loadData()
+    }
+    private func requestQuestion() {
         self.questionFactory?.requestNextQuestion()
     }
     private func showNextQuestionOrResults() {
@@ -93,15 +80,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         movieImageView.layer.borderColor = UIColor.white.withAlphaComponent(0.0).cgColor
         if currentQuestionIndex == questionsAmount - 1 {
             statisticService.store(correct: rightAnswerCount, total: questionsAmount)
-            totalRightAnswerCount += self.rightAnswerCount
-            quizeCount += 1
             resultAlertPresenter = ResultAlertPresenter(
                 title: "Этот раунд окончен",
                 text: getResultMessage(),
                 buttonText: "Сыграть еще раз",
                 controller: self
             )
-            resultAlertPresenter?.showResult(callback: startNewQuiz)
+            resultAlertPresenter?.showAlert(callback: startNewQuiz)
         } else {
             currentQuestionIndex += 1
             questionFactory?.requestNextQuestion()
@@ -136,7 +121,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         movieImageView.layer.cornerRadius = 20
         let moviesLoader = MoviesLoader()
         questionFactory = QuestionFactory(moviesLoader: moviesLoader, delegate: self)
-        questionFactory?.loadData()
+        loadData()
         showLoadingIndicator()
         questionFactory?.requestNextQuestion()
     }
@@ -144,21 +129,38 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // MARK: - QuestionFactoryDelegate
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question = question else {
+            resultAlertPresenter = ResultAlertPresenter(
+                title: "Что-то пошло не так",
+                text: "Не удалось загрузить вопрос",
+                buttonText: "Попробовать еще раз",
+                controller: self
+            )
+            resultAlertPresenter?.showAlert(callback: requestQuestion)
             return
-            }
-            currentQuestion = question
-            let viewModel = createStepModel(model: question)
+        }
+        currentQuestion = question
+        let viewModel = createStepModel(model: question)
+        hideLoadingIndicator()
         DispatchQueue.main.async { [weak self] in
             self?.showStep(quize: viewModel)
         }
     }
+    func didRequestNextQuestion() {
+        showLoadingIndicator()
+    }
 
     func didLoadDataFromServer() {
-        activityIndicator.isHidden = true
         questionFactory?.requestNextQuestion()
     }
 
     func didFailToLoadData(with error: Error) {
-        showNetworkError(message: error.localizedDescription)
+        hideLoadingIndicator()
+        resultAlertPresenter = ResultAlertPresenter(
+            title: "Что-то пошло не так",
+            text: error.localizedDescription,
+            buttonText: "Попробовать еще раз",
+            controller: self
+        )
+        resultAlertPresenter?.showAlert(callback: loadData)
     }
 }

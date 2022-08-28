@@ -2,7 +2,6 @@ import Foundation
 
 /// Отвечает за загрузку данных по URL
 struct NetworkClient {
-
     private enum NetworkError: Error {
         case codeError
     }

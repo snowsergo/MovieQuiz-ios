@@ -24,6 +24,7 @@ struct MoviesLoader: MoviesLoading {
                 handler(.success(movies))
             } else {
                 return
-            }}}
+            }}
+        }
     }
     }

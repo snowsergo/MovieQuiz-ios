@@ -1,6 +1,6 @@
 import UIKit
 
-class ResultAlertPresenter: ResultAlertPresenterProtocol  {
+class ResultAlertPresenter: ResultAlertPresenterProtocol {
     var title: String
     var text: String
     var buttonText: String
@@ -17,7 +17,7 @@ class ResultAlertPresenter: ResultAlertPresenterProtocol  {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func showResult(callback: @escaping () -> Void) {
+    func showAlert(callback: @escaping () -> Void) {
         let alert = UIAlertController(
             title: self.title,
             message: self.text,
