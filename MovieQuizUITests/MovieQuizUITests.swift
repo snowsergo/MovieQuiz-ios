@@ -1,4 +1,3 @@
-
 import XCTest
 
 class MovieQuizUITests: XCTestCase {
@@ -26,33 +25,29 @@ class MovieQuizUITests: XCTestCase {
 
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
+
     func testYesButton() {
         let app = XCUIApplication()
         app.launch()
-        let firstPoster = app.images["Poster"] // находим первоначальный постер
-        app.buttons["Yes"].tap() // находим кнопку `Да` и нажимаем её
-
+        let firstPoster = app.images["Poster"]
+        app.buttons["Yes"].tap()
         let secondPoster = app.images["Poster"]
         let indexLabel = app.staticTexts["Index"]
-        /// ещё раз находим постер
         sleep(3)
         XCTAssertTrue(indexLabel.label == "2/10")
-
-        XCTAssertFalse(firstPoster == secondPoster) // проверяем, что постеры разные
+        XCTAssertFalse(firstPoster == secondPoster)
     }
+
     func testNoButton() {
         let app = XCUIApplication()
         app.launch()
-        let firstPoster = app.images["Poster"] // находим первоначальный постер
-        app.buttons["No"].tap() // находим кнопку `Да` и нажимаем её
-
+        let firstPoster = app.images["Poster"]
+        app.buttons["No"].tap()
         let secondPoster = app.images["Poster"]
         let indexLabel = app.staticTexts["Index"]
-        /// ещё раз находим постер
         sleep(3)
         XCTAssertTrue(indexLabel.label == "2/10")
-
-        XCTAssertFalse(firstPoster == secondPoster) // проверяем, что постеры разные
+        XCTAssertFalse(firstPoster == secondPoster)
     }
 
     func testAlertExist() {

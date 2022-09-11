@@ -6,14 +6,14 @@ protocol MoviesLoading {
 
 struct MoviesLoader: MoviesLoading {
     // MARK: - NetworkClien
-//    private let networkClient = NetworkClient()
     private let networkClient: NetworkRouting
 
     init(networkClient: NetworkRouting = NetworkClient()) {
         self.networkClient = networkClient
     }
     // MARK: - URL
-//    k_pz49kj0s мой ключ k_xaempgf8
+//    k_pz49kj0s мой ключ
+//    k_xaempgf8 мой ключ
 //    k_kiwxbi4y общий ключ яндекса
     private var mostPopularMoviesUrl: URL {
          guard let url = URL(string: "https://imdb-api.com/en/API/MostPopularMovies/k_xaempgf8") else {
@@ -33,4 +33,4 @@ struct MoviesLoader: MoviesLoading {
             }}
         }
     }
-    }
+}

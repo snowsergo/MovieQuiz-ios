@@ -1,10 +1,9 @@
 import Foundation
-import XCTest // не забывайте импортировать фреймворк для тестирования
-@testable import MovieQuiz // импортируем приложение для тестирования
+import XCTest
+@testable import MovieQuiz
 
 
 struct StubNetworkClient: NetworkRouting {
-
     enum TestError: Error { // тестовая ошибка
     case test
     }
@@ -19,7 +18,7 @@ struct StubNetworkClient: NetworkRouting {
         }
     }
 
-     var expectedResponse: Data {
+    var expectedResponse: Data {
         """
         {
            "errorMessage" : "",
@@ -54,15 +53,11 @@ struct StubNetworkClient: NetworkRouting {
     }
 }
 
-
-
-
 class MoviesLoaderTests: XCTestCase {
     func testSuccessLoading() throws {
         // Given
         let stubNetworkClient = StubNetworkClient(emulateError: false)
         let loader: MoviesLoading = MoviesLoader(networkClient: stubNetworkClient)
-        
         // When
         // так как функция загрузки фильмов — асинхронная, нужно ожидание
         let expectation = expectation(description: "Loading expectation")
