@@ -45,7 +45,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 //            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
 //    }
 
-    private func showAnswerResult(isCorrect: Bool) {
+//    private
+    func showAnswerResult(isCorrect: Bool) {
         noButton.isUserInteractionEnabled = false
         yesButton.isUserInteractionEnabled = false
         movieImageView.layer.borderWidth = 8
@@ -76,7 +77,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private func requestQuestion() {
         self.questionFactory?.requestNextQuestion()
     }
-    private func showNextQuestionOrResults() {
+    func showNextQuestionOrResults() {
         movieImageView.layer.borderWidth = 0
         movieImageView.layer.borderColor = UIColor.white.withAlphaComponent(0.0).cgColor
         if presenter.isLastQuestion() {
@@ -95,28 +96,37 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
     }
 
+//    @IBAction private func noButtonClicked(_ sender: Any) {
+//        guard let currentQuestion = currentQuestion else {
+//            return
+//        }
+//        showAnswerResult(isCorrect: !currentQuestion.correctAnswer)
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+//            self.showNextQuestionOrResults()
+//        }
+//    }
     @IBAction private func noButtonClicked(_ sender: Any) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        showAnswerResult(isCorrect: !currentQuestion.correctAnswer)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            self.showNextQuestionOrResults()
-        }
+        presenter.currentQuestion = currentQuestion
+        presenter.noButtonClicked()
     }
 
-    @IBAction private func yesButtonClicked(_ sender: Any) {
-        guard let currentQuestion = currentQuestion else {
-            return
+//    @IBAction private func yesButtonClicked(_ sender: Any) {
+//        guard let currentQuestion = currentQuestion else {
+//            return
+//        }
+//        showAnswerResult(isCorrect: currentQuestion.correctAnswer)
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+//            self.showNextQuestionOrResults()
+//        }
+//    }
+        @IBAction private func yesButtonClicked(_ sender: Any) {
+            presenter.currentQuestion = currentQuestion
+            presenter.yesButtonClicked()
         }
-        showAnswerResult(isCorrect: currentQuestion.correctAnswer)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            self.showNextQuestionOrResults()
-        }
-    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        presenter.viewController = self
         yesButton.layer.cornerRadius = 15
         noButton.layer.cornerRadius = 15
         movieImageView.layer.masksToBounds = true
