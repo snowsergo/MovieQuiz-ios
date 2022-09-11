@@ -62,10 +62,8 @@ class MoviesLoaderTests: XCTestCase {
         // Given
         let stubNetworkClient = StubNetworkClient(emulateError: false)
         let loader: MoviesLoading = MoviesLoader(networkClient: stubNetworkClient)
-//        print(" 0 0 0 0 0  0 0 0 0 0 0    0 0 0 0 ")
-//        print("expectedResponse", stubNetworkClient.expectedResponse)
+        
         // When
-
         // так как функция загрузки фильмов — асинхронная, нужно ожидание
         let expectation = expectation(description: "Loading expectation")
 

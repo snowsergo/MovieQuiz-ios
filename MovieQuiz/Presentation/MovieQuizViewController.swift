@@ -1,12 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
-    // MARK: - Lifecycle
-    struct ViewModel {
-        let image: UIImage
-        let question: String
-        let questionNumber: String
-    }
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
     private var presenter: MovieQuizPresenter!
     @IBOutlet private weak var movieImageView: UIImageView!
     @IBOutlet private weak var questionLabel: UILabel!
@@ -23,6 +17,18 @@ final class MovieQuizViewController: UIViewController {
         activityIndicator.stopAnimating()
     }
 
+    func highlightImageBorder(isCorrectAnswer: Bool) {
+        movieImageView.layer.borderWidth = 8
+        movieImageView.layer.borderColor = isCorrectAnswer ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+        noButton.isUserInteractionEnabled = false
+        yesButton.isUserInteractionEnabled = false
+    }
+
+    func hideImageBorder() {
+        movieImageView.layer.borderWidth = 0
+        movieImageView.layer.borderColor = UIColor.white.withAlphaComponent(0.0).cgColor
+    }
+
     func showStep(quize step: QuizStepViewModel) {
         noButton.isUserInteractionEnabled = true
         yesButton.isUserInteractionEnabled = true
@@ -31,29 +37,13 @@ final class MovieQuizViewController: UIViewController {
         counterLabel.text = step.questionNumber
     }
 
-    func showAnswerResult(isCorrect: Bool) {
-        noButton.isUserInteractionEnabled = false
-        yesButton.isUserInteractionEnabled = false
-        movieImageView.layer.borderWidth = 8
-        movieImageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-        if isCorrect {
-            self.presenter.incrementRigthAnswerCount()
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else { return }
-            self.movieImageView.layer.borderWidth = 0
-            self.movieImageView.layer.borderColor = UIColor.white.withAlphaComponent(0.0).cgColor
-            self.presenter.showNextQuestionOrResults()
-        }
-    }
-
     @IBAction private func noButtonClicked(_ sender: Any) {
         presenter.noButtonClicked()
     }
 
-        @IBAction private func yesButtonClicked(_ sender: Any) {
-            presenter.yesButtonClicked()
-        }
+    @IBAction private func yesButtonClicked(_ sender: Any) {
+        presenter.yesButtonClicked()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()

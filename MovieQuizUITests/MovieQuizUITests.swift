@@ -72,6 +72,7 @@ class MovieQuizUITests: XCTestCase {
         XCTAssertTrue(resultAlert.label == "Этот раунд окончен")
         XCTAssertTrue(resultAlert.buttons.firstMatch.label == "Сыграть еще раз")
     }
+    
     func testAlertDisappear() {
         let app = XCUIApplication()
         app.launch()
