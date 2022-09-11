@@ -14,7 +14,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 //    private var currentQuestionIndex: Int = 0
     private var rightAnswerCount: Int = 0
 //    private let questionsAmount: Int = 10
-    private var currentQuestion: QuizQuestion?
+//    private var currentQuestion: QuizQuestion?
     @IBOutlet private weak var movieImageView: UIImageView!
     @IBOutlet private weak var questionLabel: UILabel!
     @IBOutlet private weak var counterLabel: UILabel!
@@ -22,15 +22,18 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var yesButton: UIButton!
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
 
-    private func showLoadingIndicator() {
+//    private
+    func showLoadingIndicator() {
         activityIndicator.startAnimating()
     }
 
-    private func hideLoadingIndicator() {
+//    private
+    func hideLoadingIndicator() {
         activityIndicator.stopAnimating()
     }
 
-    private func showStep(quize step: QuizStepViewModel) {
+//    private
+    func showStep(quize step: QuizStepViewModel) {
         noButton.isUserInteractionEnabled = true
         yesButton.isUserInteractionEnabled = true
         movieImageView.image = step.image
@@ -54,6 +57,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         if isCorrect {
             rightAnswerCount += 1
         }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
+            self.movieImageView.layer.borderWidth = 0
+            self.movieImageView.layer.borderColor = UIColor.white.withAlphaComponent(0.0).cgColor
+            self.presenter.rightAnswerCount = self.rightAnswerCount
+            self.presenter.questionFactory = self.questionFactory
+            self.presenter.showNextQuestionOrResults()
+        }
     }
     private func getResultMessage() -> String {
         let formater = DateFormatter()
@@ -65,36 +76,36 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         return result + "\n" + quize + "\n" + record + "\n" + statistic
     }
 
-    private func startNewQuiz() {
-//        self.currentQuestionIndex = 0
-        presenter.resetQuestionIndex()
-        self.rightAnswerCount = 0
-        self.questionFactory?.requestNextQuestion()
-    }
+//    private func startNewQuiz() {
+////        self.currentQuestionIndex = 0
+//        presenter.resetQuestionIndex()
+//        self.rightAnswerCount = 0
+//        self.questionFactory?.requestNextQuestion()
+//    }
     private func loadData() {
         self.questionFactory?.loadData()
     }
     private func requestQuestion() {
         self.questionFactory?.requestNextQuestion()
     }
-    func showNextQuestionOrResults() {
-        movieImageView.layer.borderWidth = 0
-        movieImageView.layer.borderColor = UIColor.white.withAlphaComponent(0.0).cgColor
-        if presenter.isLastQuestion() {
-            statisticService.store(correct: rightAnswerCount, total: presenter.questionsAmount)
-            resultAlertPresenter = ResultAlertPresenter(
-                title: "Этот раунд окончен",
-                text: getResultMessage(),
-                buttonText: "Сыграть еще раз",
-                controller: self
-            )
-            resultAlertPresenter?.showAlert(callback: startNewQuiz)
-        } else {
-//            currentQuestionIndex += 1
-            presenter.switchToNextQuestion()
-            questionFactory?.requestNextQuestion()
-        }
-    }
+//    func showNextQuestionOrResults() {
+//        movieImageView.layer.borderWidth = 0
+//        movieImageView.layer.borderColor = UIColor.white.withAlphaComponent(0.0).cgColor
+//        if presenter.isLastQuestion() {
+//            statisticService.store(correct: rightAnswerCount, total: presenter.questionsAmount)
+//            resultAlertPresenter = ResultAlertPresenter(
+//                title: "Этот раунд окончен",
+//                text: getResultMessage(),
+//                buttonText: "Сыграть еще раз",
+//                controller: self
+//            )
+//            resultAlertPresenter?.showAlert(callback: startNewQuiz)
+//        } else {
+////            currentQuestionIndex += 1
+//            presenter.switchToNextQuestion()
+//            questionFactory?.requestNextQuestion()
+//        }
+//    }
 
 //    @IBAction private func noButtonClicked(_ sender: Any) {
 //        guard let currentQuestion = currentQuestion else {
@@ -106,7 +117,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 //        }
 //    }
     @IBAction private func noButtonClicked(_ sender: Any) {
-        presenter.currentQuestion = currentQuestion
         presenter.noButtonClicked()
     }
 
@@ -120,7 +130,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 //        }
 //    }
         @IBAction private func yesButtonClicked(_ sender: Any) {
-            presenter.currentQuestion = currentQuestion
             presenter.yesButtonClicked()
         }
 
@@ -139,24 +148,28 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
 
     // MARK: - QuestionFactoryDelegate
+//    func didReceiveNextQuestion(question: QuizQuestion?) {
+//        guard let question = question else {
+//            resultAlertPresenter = ResultAlertPresenter(
+//                title: "Что-то пошло не так",
+//                text: "Не удалось загрузить вопрос",
+//                buttonText: "Попробовать еще раз",
+//                controller: self
+//            )
+//            resultAlertPresenter?.showAlert(callback: requestQuestion)
+//            return
+//        }
+//        currentQuestion = question
+//        let viewModel = presenter.createStepModel(model: question)
+//        hideLoadingIndicator()
+//        DispatchQueue.main.async { [weak self] in
+//            self?.showStep(quize: viewModel)
+//        }
+//    }
     func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else {
-            resultAlertPresenter = ResultAlertPresenter(
-                title: "Что-то пошло не так",
-                text: "Не удалось загрузить вопрос",
-                buttonText: "Попробовать еще раз",
-                controller: self
-            )
-            resultAlertPresenter?.showAlert(callback: requestQuestion)
-            return
-        }
-        currentQuestion = question
-        let viewModel = presenter.createStepModel(model: question)
-        hideLoadingIndicator()
-        DispatchQueue.main.async { [weak self] in
-            self?.showStep(quize: viewModel)
-        }
+        presenter.didReceiveNextQuestion(question: question)
     }
+
     func didRequestNextQuestion() {
         showLoadingIndicator()
     }
