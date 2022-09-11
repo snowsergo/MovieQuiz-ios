@@ -13,8 +13,10 @@ struct MoviesLoader: MoviesLoading {
         self.networkClient = networkClient
     }
     // MARK: - URL
+//    k_pz49kj0s мой ключ k_xaempgf8
+//    k_kiwxbi4y общий ключ яндекса
     private var mostPopularMoviesUrl: URL {
-         guard let url = URL(string: "https://imdb-api.com/en/API/MostPopularMovies/k_kiwxbi4y") else {
+         guard let url = URL(string: "https://imdb-api.com/en/API/MostPopularMovies/k_xaempgf8") else {
              preconditionFailure("Unable to construct mostPopularMoviesUrl")
          }
          return url

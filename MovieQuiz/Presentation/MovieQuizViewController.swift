@@ -7,13 +7,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         let question: String
         let questionNumber: String
     }
-
+    private let presenter = MovieQuizPresenter()
     private var questionFactory: QuestionFactoryProtocol?
     private var statisticService: StatisticService = StatisticServiceImplementation()
     private var resultAlertPresenter: ResultAlertPresenterProtocol?
-    private var currentQuestionIndex: Int = 0
+//    private var currentQuestionIndex: Int = 0
     private var rightAnswerCount: Int = 0
-    private let questionsAmount: Int = 10
+//    private let questionsAmount: Int = 10
     private var currentQuestion: QuizQuestion?
     @IBOutlet private weak var movieImageView: UIImageView!
     @IBOutlet private weak var questionLabel: UILabel!
@@ -38,12 +38,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         counterLabel.text = step.questionNumber
     }
 
-    private func createStepModel(model: QuizQuestion) -> QuizStepViewModel {
-        return QuizStepViewModel(
-            image: UIImage(data: model.image) ?? UIImage.checkmark,
-            question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
-    }
+//    private func createStepModel(model: QuizQuestion) -> QuizStepViewModel {
+//        return QuizStepViewModel(
+//            image: UIImage(data: model.image) ?? UIImage.checkmark,
+//            question: model.text,
+//            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
+//    }
 
     private func showAnswerResult(isCorrect: Bool) {
         noButton.isUserInteractionEnabled = false
@@ -57,7 +57,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private func getResultMessage() -> String {
         let formater = DateFormatter()
         formater.dateFormat = "dd.MM.yyyy hh:mm"
-        let result: String = "Ваш результат: \(rightAnswerCount)/\(questionsAmount)."
+        let result: String = "Ваш результат: \(rightAnswerCount)/\(presenter.questionsAmount)."
         let quize: String = "Количество сыгранных квизов: \(statisticService.gamesCount)."
         let record: String = "Рекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(statisticService.bestGame.date.dateTimeString))"
         let statistic: String = "Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%"
@@ -65,7 +65,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
 
     private func startNewQuiz() {
-        self.currentQuestionIndex = 0
+//        self.currentQuestionIndex = 0
+        presenter.resetQuestionIndex()
         self.rightAnswerCount = 0
         self.questionFactory?.requestNextQuestion()
     }
@@ -78,8 +79,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private func showNextQuestionOrResults() {
         movieImageView.layer.borderWidth = 0
         movieImageView.layer.borderColor = UIColor.white.withAlphaComponent(0.0).cgColor
-        if currentQuestionIndex == questionsAmount - 1 {
-            statisticService.store(correct: rightAnswerCount, total: questionsAmount)
+        if presenter.isLastQuestion() {
+            statisticService.store(correct: rightAnswerCount, total: presenter.questionsAmount)
             resultAlertPresenter = ResultAlertPresenter(
                 title: "Этот раунд окончен",
                 text: getResultMessage(),
@@ -88,7 +89,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             )
             resultAlertPresenter?.showAlert(callback: startNewQuiz)
         } else {
-            currentQuestionIndex += 1
+//            currentQuestionIndex += 1
+            presenter.switchToNextQuestion()
             questionFactory?.requestNextQuestion()
         }
     }
@@ -139,7 +141,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             return
         }
         currentQuestion = question
-        let viewModel = createStepModel(model: question)
+        let viewModel = presenter.createStepModel(model: question)
         hideLoadingIndicator()
         DispatchQueue.main.async { [weak self] in
             self?.showStep(quize: viewModel)

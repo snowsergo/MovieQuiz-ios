@@ -23,6 +23,7 @@ class ResultAlertPresenter: ResultAlertPresenterProtocol {
             message: self.text,
             preferredStyle: .alert
         )
+        alert.view.accessibilityIdentifier = "result_alert"
         let action = UIAlertAction(
             title: self.buttonText,
             style: .default, handler: {_ in
