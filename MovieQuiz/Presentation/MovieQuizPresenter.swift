@@ -1,15 +1,23 @@
 import UIKit
 
-final class MovieQuizPresenter {
-    let questionsAmount: Int = 10
-    private var currentQuestionIndex: Int = 0
+final class MovieQuizPresenter: QuestionFactoryDelegate {
     var currentQuestion: QuizQuestion?
     weak var viewController: MovieQuizViewController?
     private var statisticService: StatisticService = StatisticServiceImplementation()
     let moviesLoader = MoviesLoader()
-    var questionFactory: QuestionFactoryProtocol?
-    var rightAnswerCount: Int = 0
+    private var questionFactory: QuestionFactoryProtocol?
     private var resultAlertPresenter: ResultAlertPresenterProtocol?
+
+    private var rightAnswerCount: Int = 0
+    let questionsAmount: Int = 10
+    private var currentQuestionIndex: Int = 0
+
+    init(viewController: MovieQuizViewController) {
+          self.viewController = viewController
+          questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+          questionFactory?.loadData()
+          viewController.showLoadingIndicator()
+      }
 
     func isLastQuestion() -> Bool {
         currentQuestionIndex == questionsAmount - 1
@@ -21,6 +29,9 @@ final class MovieQuizPresenter {
 
     func switchToNextQuestion() {
         currentQuestionIndex += 1
+    }
+    func incrementRigthAnswerCount() {
+        rightAnswerCount += 1
     }
     func createStepModel(model: QuizQuestion) -> QuizStepViewModel {
         return QuizStepViewModel(
@@ -48,6 +59,28 @@ final class MovieQuizPresenter {
     private func requestQuestion() {
         self.questionFactory?.requestNextQuestion()
     }
+
+    func didLoadDataFromServer() {
+          viewController?.hideLoadingIndicator()
+          questionFactory?.requestNextQuestion()
+      }
+    private func loadData() {
+        self.questionFactory?.loadData()
+    }
+    func didRequestNextQuestion() {
+        viewController?.showLoadingIndicator()
+    }
+    func didFailToLoadData(with error: Error) {
+        viewController?.hideLoadingIndicator()
+        resultAlertPresenter = ResultAlertPresenter(
+            title: "Что-то пошло не так",
+            text: error.localizedDescription,
+            buttonText: "Попробовать еще раз",
+            controller: viewController!
+        )
+        resultAlertPresenter?.showAlert(callback: loadData)
+    }
+
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question = question else {
             resultAlertPresenter = ResultAlertPresenter(
@@ -77,14 +110,11 @@ final class MovieQuizPresenter {
     }
 
     private func startNewQuiz() {
-//        self.currentQuestionIndex = 0
         resetQuestionIndex()
         rightAnswerCount = 0
         questionFactory?.requestNextQuestion()
     }
     func showNextQuestionOrResults() {
-//        movieImageView.layer.borderWidth = 0
-//        movieImageView.layer.borderColor = UIColor.white.withAlphaComponent(0.0).cgColor
         if self.isLastQuestion() {
             statisticService.store(correct: rightAnswerCount, total: questionsAmount)
             resultAlertPresenter = ResultAlertPresenter(
@@ -95,8 +125,7 @@ final class MovieQuizPresenter {
             )
             resultAlertPresenter?.showAlert(callback: startNewQuiz)
         } else {
-//            currentQuestionIndex += 1
-            self.switchToNextQuestion()
+            switchToNextQuestion()
             questionFactory?.requestNextQuestion()
         }
     }
