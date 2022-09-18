@@ -11,8 +11,8 @@ class MovieQuizUITests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
-        app = nil
         app.terminate()
+        app = nil
     }
 
     func testYesButton() {
