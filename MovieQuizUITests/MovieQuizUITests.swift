@@ -5,30 +5,17 @@ class MovieQuizUITests: XCTestCase {
 
 
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
         app = XCUIApplication()
-        // In UI tests it is usually best to stop immediately when a failure occurs.
+        app.launch()
         continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
         app = nil
-    }
-
-    func testExample() throws {
-        // UI tests must launch the application that they test
-        let app = XCUIApplication()
-        app.launch()
-
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        app.terminate()
     }
 
     func testYesButton() {
-        let app = XCUIApplication()
-        app.launch()
         let firstPoster = app.images["Poster"]
         app.buttons["Yes"].tap()
         let secondPoster = app.images["Poster"]
@@ -39,8 +26,6 @@ class MovieQuizUITests: XCTestCase {
     }
 
     func testNoButton() {
-        let app = XCUIApplication()
-        app.launch()
         let firstPoster = app.images["Poster"]
         app.buttons["No"].tap()
         let secondPoster = app.images["Poster"]
@@ -51,14 +36,10 @@ class MovieQuizUITests: XCTestCase {
     }
 
     func testAlertExist() {
-        let app = XCUIApplication()
-        app.launch()
         sleep(4)
-        var i = 0
-        while i < 10 {
+        for _ in 0..<10 {
             app.buttons["Yes"].tap()
             sleep(2)
-            i += 1
         }
         let indexLabel = app.staticTexts["Index"]
         XCTAssertTrue(indexLabel.label == "10/10")
@@ -69,8 +50,6 @@ class MovieQuizUITests: XCTestCase {
     }
     
     func testAlertDisappear() {
-        let app = XCUIApplication()
-        app.launch()
         sleep(5)
         var i = 0
         while i < 10 {

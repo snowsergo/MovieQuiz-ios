@@ -14,7 +14,8 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     init(viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
         statisticService = StatisticServiceImplementation()
-        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        questionFactory = QuestionFactory(moviesLoader: moviesLoader, delegate: self)
+
         questionFactory?.loadData()
         viewController.showLoadingIndicator()
     }
@@ -58,6 +59,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     }
 
     private func loadData() {
+        viewController?.showLoadingIndicator()
         self.questionFactory?.loadData()
     }
 
@@ -147,7 +149,4 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             self.showNextQuestionOrResults()
         }
     }
-
-
-
 }

@@ -5,7 +5,7 @@ import XCTest
 
 struct StubNetworkClient: NetworkRouting {
     enum TestError: Error { // тестовая ошибка
-    case test
+        case test
     }
 
     let emulateError: Bool // этот параметр нужен, чтобы заглушка эмулировала либо ошибку сети, либо успешный ответ
@@ -21,7 +21,7 @@ struct StubNetworkClient: NetworkRouting {
     var expectedResponse: Data {
         """
         {
-           "errorMessage" : "",
+        "errorMessage" : "",
            "items" : [
               {
                  "crew" : "Dan Trachtenberg (dir.), Amber Midthunder, Dakota Beavers",
@@ -79,8 +79,8 @@ class MoviesLoaderTests: XCTestCase {
 
     func testFailureLoading() throws {
         // Given
-        let stubNetwrokClient = StubNetworkClient(emulateError: true) // говорим, что хотим эмулировать ошибку
-        let loader = MoviesLoader(networkClient: stubNetwrokClient)
+        let stubNetworkClient = StubNetworkClient(emulateError: true) // говорим, что хотим эмулировать ошибку
+        let loader = MoviesLoader(networkClient: stubNetworkClient)
 
         // When
         let expectation = expectation(description: "Loading expectation")
